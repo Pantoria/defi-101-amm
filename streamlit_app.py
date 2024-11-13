@@ -182,23 +182,7 @@ class AMMCalculator:
             line=dict(color="gray", width=2, dash="dash"),
             row=2, col=1
         )
-        
-        # Add annotations for optimal trade points if at optimal amount
-        if arb_amount == self.optimal_sol:
-            fig.add_annotation(
-                x=pool1_after_arb_usdc,
-                y=pool1_after_arb_sol * 1.1,
-                text="Optimal Trade Point",
-                showarrow=False,
-                row=1, col=1
-            )
-            fig.add_annotation(
-                x=pool2_after_arb_usdc,
-                y=self.pool2_sol * 1.1,
-                text="Optimal Trade Point",
-                showarrow=False,
-                row=2, col=1
-            )
+
         
         # Add USDC/SOL ratio annotations at final positions
         fig.add_annotation(
