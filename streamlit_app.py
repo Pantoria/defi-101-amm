@@ -214,7 +214,8 @@ class AMMCalculator:
             y=pool1_after_arb_sol,
             text=f"SOL: {pool1_after_arb_sol:.2f}",
             showarrow=False,
-            yshift=10,
+            xshift=40,
+            yshift=20,
             row=1, col=1
         )
         
@@ -231,7 +232,8 @@ class AMMCalculator:
             y=pool2_after_arb_sol,
             text=f"SOL: {pool2_after_arb_sol:.2f}",
             showarrow=False,
-            yshift=10,
+            xshift=30,
+            yshift=20,
             row=2, col=1
         )
         
