@@ -244,6 +244,10 @@ def main():
     
     st.title("🔄 AMM Arbitrage Calculator (AMM)")
     
+    # Initialize session state for amount if not exists
+    if 'sol_amount' not in st.session_state:
+        st.session_state.sol_amount = 18.19  # Default to optimal amount
+    
     calculator = AMMCalculator()
     
     # Calculate spot prices
@@ -268,13 +272,44 @@ def main():
     col1, col2 = st.columns([2, 1])
     
     with col1:
-        sol_amount = st.slider(
-            "Amount of SOL to arbitrage",
-            min_value=0.0,
-            max_value=50.0,
-            value=calculator.optimal_sol,
-            step=0.01
-        )
+        # Create input columns for amount controls
+        input_col1, input_col2, input_col3 = st.columns([1, 1, 1])
+        
+        def set_optimal():
+            st.session_state.sol_amount = calculator.optimal_sol
+        
+        with input_col3:
+            # Button to set optimal amount (place first to avoid layout shift)
+            st.button("Set Optimal Amount", on_click=set_optimal)
+        
+        with input_col1:
+            # Numeric input for precise amount
+            sol_input = st.number_input(
+                "Enter SOL amount:",
+                min_value=0.0,
+                max_value=50.0,
+                value=st.session_state.sol_amount,
+                step=0.01,
+                format="%.2f",
+                key='number_input'
+            )
+        
+        with input_col2:
+            # Slider for visual adjustment
+            sol_slider = st.slider(
+                "Adjust amount:",
+                min_value=0.0,
+                max_value=50.0,
+                value=st.session_state.sol_amount,
+                step=0.01,
+                key='slider'
+            )
+        
+        # Update session state based on either input
+        st.session_state.sol_amount = sol_input if sol_input != st.session_state.sol_amount else sol_slider
+        
+        # Use the session state value
+        sol_amount = st.session_state.sol_amount
         
         st.plotly_chart(calculator.plot_pools(sol_amount), use_container_width=True)
     
@@ -310,10 +345,14 @@ def main():
                  f"${result['profit']:,.2f}",
                  delta=f"{result['profit']:,.2f}")
         
-        if sol_amount == calculator.optimal_sol:
+        if abs(sol_amount - calculator.optimal_sol) < 0.01:
             st.success("🎯 This is the optimal arbitrage amount!")
         elif result['profit'] > 0:
             st.success("✅ Profitable trade!")
+            if sol_amount < calculator.optimal_sol:
+                st.info("💡 Tip: You can increase profit by increasing the amount")
+            elif sol_amount > calculator.optimal_sol:
+                st.info("💡 Tip: You can increase profit by decreasing the amount")
         else:
             st.warning("⚠️ This trade would result in a loss.")
         
@@ -323,6 +362,7 @@ def main():
         2. Buy from the lower-priced pool (Pool 2)
         3. Sell in the higher-priced pool (Pool 1)
         4. The optimal amount balances the price impact in both pools
+        5. Use the 'Set Optimal Amount' button to find the best trade size
         """)
 
 if __name__ == "__main__":
